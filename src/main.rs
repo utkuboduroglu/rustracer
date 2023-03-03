@@ -26,6 +26,8 @@ fn ray_color(r: &ray::ray, world: &dyn hittable::hittable) -> color3 {
     (1.0 - t) * color3::new(1.0, 1.0, 1.0) + t * color3::new(0.5, 0.7, 1.0)
 }
 
+const output_filename: &str = "output_image.png";
+
 fn main() {
     let aspect_ratio = 16.0 / 9.0;
     let pixelResolution: u32 = 480;
@@ -51,25 +53,19 @@ fn main() {
     let viewport_height = 1.0;
     let viewport_width = aspect_ratio * viewport_height;
 
-    let camera = camera {
-        aspect_ratio,
-        viewport_width,
-        viewport_height,
-        focal_length: 1.0,
-        origin: Vector3::<f32>::new(0.0, 0.0, 0.0),
-        right: Vector3::<f32>::new(viewport_width, 0.0, 0.0),
-        up: Vector3::<f32>::new(0.0, -viewport_height, 0.0), // this needs to be negative to work?
-        front: Vector3::<f32>::new(0.0, 0.0, -1.0),
-    };
+    let camera = camera::from_vectors(
+        Vector3f::new(0.0, 0.0, 0.0),
+        Vector3f::new(viewport_width, 0.0, 0.0),
+        Vector3f::new(0.0, -viewport_height, 0.0), // this needs to be negative to work?
+        Vector3f::new(0.0, 0.0, -1.0),
+        );
 
-    let output_filename: &str = "output_image.png";
 
+    // the core render loop: can this be made more rust-like?
     for (i, j, pixel) in imgbuf.enumerate_pixels_mut() {
         if i == 0 {
             eprintln!("Scanlines remaining: {}", dimY as u32 - j);
         }
-        // render loop
-
         let uv_coords = (i as f32 / (dimX - 1.0), j as f32 / (dimY - 1.0));
 
         let pixel_ray = camera.rayFromUV(uv_coords);
