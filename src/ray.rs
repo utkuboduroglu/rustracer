@@ -33,11 +33,17 @@ impl camera {
     // fn up() -> Vector3f;
 
     pub fn new(origin: Point3, orientation: Matrix3f) -> camera {
-        camera { origin, orientation }
+        camera {
+            origin,
+            orientation,
+        }
     }
 
     pub fn from_vectors(origin: Point3, right: Vector3f, up: Vector3f, front: Vector3f) -> camera {
-        camera { origin, orientation: Matrix3f::from_columns(&[right, up, front]) }
+        camera {
+            origin,
+            orientation: Matrix3f::from_columns(&[right, up, front]),
+        }
     }
 
     fn right(&self) -> Vector3f {
@@ -56,23 +62,22 @@ impl camera {
     fn viewport_dimensions(&self) -> (f32, f32) {
         // the relevant vectors are right and up
         // we do a simple math calculation for the norms
-        let vec_norm = |vec: &Vector3f| { f32::sqrt((*vec).dot(vec)) };
-        
+        let vec_norm = |vec: &Vector3f| f32::sqrt((*vec).dot(vec));
+
         let viewport_width = vec_norm(&(self.right()));
         let viewport_height = vec_norm(&(self.up()));
 
         (viewport_width, viewport_height)
-
     }
 
     fn aspect_ratio(&self) -> f32 {
         // the aspect ratio is practically just viewport_width/viewport_height
         let (w, h) = self.viewport_dimensions();
-        w/h
+        w / h
     }
 
     fn focal_length(&self) -> f32 {
-        let vec_norm = |vec: &Vector3f| { f32::sqrt((*vec).dot(vec)) };
+        let vec_norm = |vec: &Vector3f| f32::sqrt((*vec).dot(vec));
         f32::sqrt(vec_norm(&(self.front())))
     }
 
@@ -80,7 +85,8 @@ impl camera {
         let (u, v) = coords;
         // given uv coordinates, we assume them to be normalized to [0,1], apply 2u - 1, 2v -1 to
         // them before multiplying by viewport vectors
-        let ray_direction = self.front() + (2.0 * u - 1.0) * self.right() + (2.0 * v - 1.0) * self.up();
+        let ray_direction =
+            self.front() + (2.0 * u - 1.0) * self.right() + (2.0 * v - 1.0) * self.up();
         ray::new(self.origin, ray_direction)
     }
 }
